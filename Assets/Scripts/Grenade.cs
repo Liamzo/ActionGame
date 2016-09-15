@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 using System;
 
 public class Grenade : MonoBehaviour, IDoesDamage {
@@ -9,11 +10,6 @@ public class Grenade : MonoBehaviour, IDoesDamage {
     float explosionMinRange = 2f;
     float explosionMaxRange = 5f;
     float maxDamage = 10f;
-
-	// Use this for initialization
-	void Start () {
-	
-	}
 	
 	// Update is called once per frame
 	void Update () {
@@ -25,36 +21,34 @@ public class Grenade : MonoBehaviour, IDoesDamage {
 	}
 
     public void DealDamage () {
-        Collider[] cols = Physics.OverlapSphere(this.transform.position, explosionMaxRange);
-
+        Collider[] sphereColliders = Physics.OverlapSphere(this.transform.position, explosionMaxRange);
+        List<Collider> nonCoverColliders = new List<Collider>();
+        List<RaycastHit> hits = new List<RaycastHit>();
         float fallOffRange = explosionMaxRange - explosionMinRange;
 
-        foreach (Collider col in cols) {
-            if (col.transform.GetComponent<IDamageable>() != null) {
-                // Check if the object is behind cover
-                // TODO: bit weird if the cover is destroyed
-                RaycastHit hit;
-                if (Physics.Raycast(this.transform.position, col.transform.position - this.transform.position, out hit)) {
-                    if (hit.collider != col) {
-                        Debug.Log("Cover");
-                        break;
-                    }
-
-                    // If too close to the centre, take the full damage
-                    if (hit.distance <= explosionMinRange) {
-                        col.transform.GetComponent<IDamageable>().TakeDamage(maxDamage);
-                    } else {
-                        // Else, take a lesser amount
-                        float damageDropOff = ((hit.distance - explosionMinRange) / fallOffRange) * maxDamage;
-                        float damage = maxDamage - damageDropOff;
-                        col.transform.GetComponent<IDamageable>().TakeDamage(damage);
-                        Debug.Log(damage);
-                  }
+        foreach (Collider col in sphereColliders) {
+            RaycastHit hit;
+            if (Physics.Raycast(this.transform.position, col.transform.position - this.transform.position, out hit)) {
+                if (hit.collider == col) {
+                    nonCoverColliders.Add(col);
+                    hits.Add(hit);
                 }
-
-                
             }
         }
+
+        for (int i = 0; i < nonCoverColliders.Count-1; i++) {
+            // If too close to the centre, take the full damage
+            if (hits[i].distance <= explosionMinRange) {
+                nonCoverColliders[i].transform.GetComponent<IDamageable>().TakeDamage(maxDamage);
+            } else {
+                // Else, take a lesser amount
+                float damageDropOff = ((hits[i].distance - explosionMinRange) / fallOffRange) * maxDamage;
+                float damage = maxDamage - damageDropOff;
+                nonCoverColliders[i].transform.GetComponent<IDamageable>().TakeDamage(damage);
+                Debug.Log(damage);
+            }
+        }
+
 
         Destroy(this.gameObject);
     }
