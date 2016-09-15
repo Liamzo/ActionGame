@@ -5,6 +5,9 @@ using System;
 
 public class Grenade : MonoBehaviour, IDoesDamage {
 
+    // Explosion
+    public GameObject explosion;
+
     // For DoesDamage
     float lifeTime = 2f;
     float explosionMinRange = 2f;
@@ -16,6 +19,7 @@ public class Grenade : MonoBehaviour, IDoesDamage {
         lifeTime -= Time.deltaTime;
 
         if (lifeTime <= 0) {
+            Explode();
             DealDamage();
         }
 	}
@@ -45,11 +49,13 @@ public class Grenade : MonoBehaviour, IDoesDamage {
                 float damageDropOff = ((hits[i].distance - explosionMinRange) / fallOffRange) * maxDamage;
                 float damage = maxDamage - damageDropOff;
                 nonCoverColliders[i].transform.GetComponent<IDamageable>().TakeDamage(damage);
-                Debug.Log(damage);
             }
         }
 
+        Destroy(gameObject);
+    }
 
-        Destroy(this.gameObject);
+    void Explode () {
+        Instantiate(explosion, this.transform.position, Quaternion.identity);
     }
 }
