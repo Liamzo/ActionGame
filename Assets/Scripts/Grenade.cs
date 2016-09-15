@@ -28,7 +28,7 @@ public class Grenade : MonoBehaviour, IDoesDamage {
 
         foreach (Collider col in sphereColliders) {
             RaycastHit hit;
-            if (Physics.Raycast(this.transform.position, col.transform.position - this.transform.position, out hit)) {
+            if (col.transform.GetComponent<IDamageable>() != null && Physics.Raycast(this.transform.position, col.transform.position - this.transform.position, out hit)) {
                 if (hit.collider == col) {
                     nonCoverColliders.Add(col);
                     hits.Add(hit);
@@ -36,7 +36,7 @@ public class Grenade : MonoBehaviour, IDoesDamage {
             }
         }
 
-        for (int i = 0; i < nonCoverColliders.Count-1; i++) {
+        for (int i = 0; i < nonCoverColliders.Count; i++) {
             // If too close to the centre, take the full damage
             if (hits[i].distance <= explosionMinRange) {
                 nonCoverColliders[i].transform.GetComponent<IDamageable>().TakeDamage(maxDamage);
