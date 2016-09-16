@@ -8,12 +8,22 @@ public class CrateScript : MonoBehaviour, IDamageable {
 
     float health = 1f;
 
-    public void TakeDamage (float damage) {
+    public void TakeDamage ( float damage ) {
         health -= damage;
 
         if (health <= 0) {
-            Instantiate(destroyedPrefab, transform.position, transform.rotation);
-            Destroy(gameObject);
+            Break();
         }
+    }
+
+    void OnCollisionEnter ( Collision collision ) {
+        if (collision.relativeVelocity.magnitude > 9f) {
+            Break();
+        }
+    }
+
+    void Break () {
+        Instantiate(destroyedPrefab, transform.position, transform.rotation);
+        Destroy(gameObject);
     }
 }
