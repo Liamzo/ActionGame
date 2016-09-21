@@ -29,16 +29,25 @@ public class BasicShooter : MonoBehaviour, IDamageable {
     int maxNumberOfShots = 5;
     int minNumberOfShots = 3;
     int shotsRemaining = 0;
-    
+
+    // For randomly moving and repositioning
+    NavMeshAgent nma;
+    float moveRange = 8f;
+    Vector3 targetMovePosition;
+    bool findNewPosition = true;
 
     // Use this for initialization
     void Start () {
         curHealth = maxHealth;
         curTimeBetweenShots = timeBetweenShots;
-	}
-	
-	// Update is called once per frame
-	void Update () {
+
+        shotsRemaining = UnityEngine.Random.Range(minNumberOfShots, maxNumberOfShots + 1);
+
+        nma = GetComponent<NavMeshAgent>();
+    }
+
+    // Update is called once per frame
+    void Update () {
 	    if (shooterState == ShooterState.NotInCombat) {
             // TODO: Maybe patrol an area, etc
 
@@ -52,8 +61,18 @@ public class BasicShooter : MonoBehaviour, IDamageable {
         } else {
             if (shooterState == ShooterState.Repositioning) {
                 // TODO: Move to a random location
-                Debug.Log("Repositioning");
-                shooterState = ShooterState.Firing;
+                if (findNewPosition == true) {
+                    targetMovePosition = FindRandomPoint(transform.position);
+                    Debug.Log(targetMovePosition);
+                    findNewPosition = false;
+                }
+        
+                nma.destination = targetMovePosition;
+                if (Vector3.Distance(transform.position, targetMovePosition) <= 0.5f) {
+                    findNewPosition = true;
+                    shooterState = ShooterState.Firing;
+
+                }
             } else if (shooterState == ShooterState.Firing) {
                 // Continue to fire at the player
                 lookAt(player.transform.position);
@@ -92,6 +111,20 @@ public class BasicShooter : MonoBehaviour, IDamageable {
     void fire () {
         Debug.Log("pew");
         shotsRemaining--;
+    }
+
+    Vector3 FindRandomPoint (Vector3 center) {
+        Vector3 result;
+        for (int i = 0; i < 30; i++) {
+            Vector3 randomPoint = center + UnityEngine.Random.insideUnitSphere * moveRange ;
+            NavMeshHit hit;
+            if (NavMesh.SamplePosition(randomPoint, out hit, 1.0f, NavMesh.AllAreas)) {
+                result = hit.position;
+                return result;
+            }
+        }
+        result = Vector3.zero;
+        return result;
     }
 
 }
