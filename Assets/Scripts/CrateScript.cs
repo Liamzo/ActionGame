@@ -16,14 +16,19 @@ public class CrateScript : MonoBehaviour, IDamageable {
         }
     }
 
+    // Had some issues with synchronization when getting hit and taking damage at the same time
+    // Break was being called twice
+
+    // Also annoying with debris colliding with enough force to break it
+
     void OnCollisionEnter ( Collision collision ) {
-        if (collision.relativeVelocity.magnitude > 9f) {
+        if (collision.relativeVelocity.magnitude > 12f) {
             Break();
         }
     }
 
     void Break () {
-        Instantiate(destroyedPrefab, transform.position, transform.rotation);
+        GameObject go = (GameObject)Instantiate(destroyedPrefab, transform.position, transform.rotation);
         Destroy(gameObject);
     }
 }

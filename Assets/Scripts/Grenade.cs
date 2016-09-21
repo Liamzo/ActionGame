@@ -6,6 +6,7 @@ using System;
 public class Grenade : MonoBehaviour, IDoesDamage {
 
     // Explosion
+    bool firstHit = false;
     public GameObject explosion;
 
     // For DoesDamage
@@ -15,19 +16,20 @@ public class Grenade : MonoBehaviour, IDoesDamage {
     float maxDamage = 10f;
 
     // For explosion force
-    float explosionForce = 9f;
+    float explosionForce = 5f;
 	
 	// Update is called once per frame
 	void Update () {
         lifeTime -= Time.deltaTime;
 
         if (lifeTime <= 0) {
-            Explode();
             DealDamage();
         }
 	}
 
     public void DealDamage () {
+        Explode();
+
         Collider[] sphereColliders = Physics.OverlapSphere(this.transform.position, explosionMaxRange); // Holds all colliders in range
         List<Collider> nonCoverColliders = new List<Collider>(); // Holds all colliders that can be seen
         List<RaycastHit> hits = new List<RaycastHit>(); // Holds hit information for calculating damage
@@ -77,5 +79,15 @@ public class Grenade : MonoBehaviour, IDoesDamage {
 
     void Explode () {
         Instantiate(explosion, this.transform.position, Quaternion.identity);
+    }
+
+    void OnCollisionEnter (Collision collision) {
+        if (firstHit == false) {
+            if (collision.transform.GetComponent<IDamageable>() != null) {
+                DealDamage();
+            }
+        }
+
+        firstHit = true;
     }
 }
