@@ -3,6 +3,6 @@ using System.Collections;
 
 public interface IDoesDamage {
 
-    void DealDamage ();
+    void DealDamage (Transform damagedObject);
 
 }

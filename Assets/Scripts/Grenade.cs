@@ -23,11 +23,11 @@ public class Grenade : MonoBehaviour, IDoesDamage {
         lifeTime -= Time.deltaTime;
 
         if (lifeTime <= 0) {
-            DealDamage();
+            DealDamage(null);
         }
 	}
 
-    public void DealDamage () {
+    public void DealDamage (Transform damagedObject) {
         Explode();
 
         Collider[] sphereColliders = Physics.OverlapSphere(this.transform.position, explosionMaxRange); // Holds all colliders in range
@@ -84,7 +84,7 @@ public class Grenade : MonoBehaviour, IDoesDamage {
     void OnCollisionEnter (Collision collision) {
         if (firstHit == false) {
             if (collision.transform.GetComponent<IDamageable>() != null) {
-                DealDamage();
+                DealDamage(null);
             }
         }
 

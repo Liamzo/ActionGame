@@ -29,6 +29,8 @@ public class BasicShooter : MonoBehaviour, IDamageable {
     int maxNumberOfShots = 5;
     int minNumberOfShots = 3;
     int shotsRemaining = 0;
+    public GameObject lazerGun;
+    public GameObject lazerBulletPrefab;
 
     // For randomly moving and repositioning
     NavMeshAgent nma;
@@ -106,10 +108,13 @@ public class BasicShooter : MonoBehaviour, IDamageable {
     void lookAt(Vector3 target) {
         transform.LookAt(target);
         transform.eulerAngles = new Vector3(0f, transform.eulerAngles.y, transform.eulerAngles.z);
+        lazerGun.transform.LookAt(playerHead.transform.position);
+        lazerGun.transform.localEulerAngles = new Vector3(lazerGun.transform.eulerAngles.x, 0f, 0f);
     }
 
     void fire () {
-        Debug.Log("pew");
+        // Make a lazer appear
+        GameObject go = (GameObject)Instantiate(lazerBulletPrefab, lazerGun.transform.position, Quaternion.Euler(lazerGun.transform.eulerAngles.x+90, lazerGun.transform.eulerAngles.y, lazerGun.transform.eulerAngles.z));
         shotsRemaining--;
     }
 
