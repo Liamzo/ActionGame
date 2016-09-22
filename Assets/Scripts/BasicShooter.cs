@@ -65,11 +65,10 @@ public class BasicShooter : MonoBehaviour, IDamageable {
                 // TODO: Move to a random location
                 if (findNewPosition == true) {
                     targetMovePosition = FindRandomPoint(transform.position);
-                    Debug.Log(targetMovePosition);
+                    nma.destination = targetMovePosition;
                     findNewPosition = false;
                 }
         
-                nma.destination = targetMovePosition;
                 if (Vector3.Distance(transform.position, targetMovePosition) <= 0.5f) {
                     findNewPosition = true;
                     shooterState = ShooterState.Firing;
@@ -109,7 +108,7 @@ public class BasicShooter : MonoBehaviour, IDamageable {
         transform.LookAt(target);
         transform.eulerAngles = new Vector3(0f, transform.eulerAngles.y, transform.eulerAngles.z);
         lazerGun.transform.LookAt(playerHead.transform.position);
-        lazerGun.transform.localEulerAngles = new Vector3(lazerGun.transform.eulerAngles.x, 0f, 0f);
+        //lazerGun.transform.localEulerAngles = new Vector3(lazerGun.transform.eulerAngles.x, 0f, 0f);
     }
 
     void fire () {
@@ -119,13 +118,19 @@ public class BasicShooter : MonoBehaviour, IDamageable {
     }
 
     Vector3 FindRandomPoint (Vector3 center) {
+        NavMeshPath path = new NavMeshPath();
         Vector3 result;
         for (int i = 0; i < 30; i++) {
-            Vector3 randomPoint = center + UnityEngine.Random.insideUnitSphere * moveRange ;
+            Vector3 randomPoint = center + UnityEngine.Random.insideUnitSphere * moveRange;
             NavMeshHit hit;
             if (NavMesh.SamplePosition(randomPoint, out hit, 1.0f, NavMesh.AllAreas)) {
-                result = hit.position;
-                return result;
+
+                NavMesh.CalculatePath(transform.position, hit.position, NavMesh.AllAreas, path);
+                if (path.status == NavMeshPathStatus.PathComplete)    {
+                    result = hit.position;
+                    return result;
+                }
+                
             }
         }
         result = Vector3.zero;
