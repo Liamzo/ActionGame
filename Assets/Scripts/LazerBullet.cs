@@ -5,16 +5,17 @@ using System;
 public class LazerBullet : MonoBehaviour, IDoesDamage {
     float damage = 10f;
     float speed = 15f;
+    Rigidbody rb;
 
     // Use this for initialization
     void Start () {
-	
+        rb = GetComponent<Rigidbody>();
 	}
 	
 	// Update is called once per frame
 	void Update () {
-        transform.Translate(Vector3.up * Time.deltaTime * speed);
-	}
+        rb.velocity = new Vector3(0,speed,0);
+    }
 
     public void DealDamage (Transform obj) {
         obj.GetComponent<IDamageable>().TakeDamage(damage);
